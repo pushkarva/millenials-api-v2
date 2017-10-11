@@ -1,0 +1,33 @@
+{
+  "general": {
+	"service": {
+		"name":"millenials-api"
+	}
+  },
+  "connections": {
+    "http": {
+      "address": "0.0.0.0",
+      "port": 8085 
+    }
+  },
+  "jwt": {
+    "secretKey":"|}9yY),]Wtv^H=##Nor#{\/!g%;@}=r",
+    "tokenValidity": "2592000", // 30 days
+    "algorithm":"HS256",
+    "issuer":"www.millenialsapp.com",
+    "audience":"www.millenialsapp.com"
+  },
+  "db":{
+    "connectionLimit":"10",
+    "host":"localhost",
+    "port":"3306",
+    "user":"root",
+    "password":"Yaass@2017",
+    "database":"yaass"
+  },
+  "passhash":{
+    "hashAlgorithm":"sha512",
+    "saltLength":"16"
+
+  }
+}

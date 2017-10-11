@@ -1,0 +1,24 @@
+{
+  "name": "millenials-api",
+  "version": "1.0.0",
+  "description": "Restify JWT Authentication Template",
+  "main": "server.js",
+  "dependencies": {
+    "config": "^1.24.0",
+    "jsonwebtoken": "^7.2.1",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
+    "passport-local": "^1.0.0",
+    "restify": "^4.3.0",
+    "mysql2": "^1.4.2",
+    "nodemon": "1.11.0",
+    "sequelize": "^4.8.3",
+    "restify-router": "^0.4.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "MillenialApp",
+  "license": "ISC"
+}
