@@ -5,11 +5,16 @@ module.exports = function(sequelize, DataTypes) {
     iduser_sessions: {
       type: DataTypes.INTEGER(55),
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false
     },
     idUser: {
       type: DataTypes.STRING(70),
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'user',
         key: 'iduser'
@@ -17,21 +22,21 @@ module.exports = function(sequelize, DataTypes) {
     },
     sessionToken: {
       type: DataTypes.STRING(200),
-      allowNull: true
+      allowNull: false
     },
-    deviceId: {
+    device: {
       type: DataTypes.STRING(45),
       allowNull: true
     },
-    deviceType: {
+    browser: {
       type: DataTypes.STRING(45),
       allowNull: true
     },
-    browserClient: {
-      type: DataTypes.STRING(45),
+    user_ip: {
+      type: DataTypes.STRING(50),
       allowNull: true
     }
-    }, {
+  }, {
     tableName: 'user_sessions'
   });
 };
