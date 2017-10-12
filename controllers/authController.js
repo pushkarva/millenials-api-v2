@@ -8,6 +8,8 @@ var config = require('config'); // Easy configuration file parser
 var crypto = require('crypto'); // Cryptographic library
 var userController = require("./userController");
 var eH = require("../helper/passHashHelper");
+var userSessionController = require("../controllers/userSessionsController");
+
 
 // Configuration
 var jwtConfig = config.get('jwt');
@@ -34,8 +36,8 @@ passport.deserializeUser(function (iduser, done) {
  */
 
 passport.use('login-strategy',
-  new LocalStrategy(
-    function (username, password, done) {
+  new LocalStrategy({passReqToCallback: true},
+    function (req,username, password, done) {
       // Test the access credentials
       var user = userController.getByUsername(username).then(function (user) {
        if (user && (eH.passHash(password, user.RandomSalt)===(user.PasswordHash))) {          
@@ -48,7 +50,7 @@ passport.use('login-strategy',
             if (err) {
               return (done(true, null));
             } else {
-
+              userSessionController.createUserSession(req,token);
               return done(null, {
                 id: user.iduser,
                 username: username,
@@ -82,15 +84,20 @@ opts.audience = jwtConfig.audience;
 opts.passReqToCallback = true;
 
 
-passport.use('local-dbcheck',new JwtStrategy(opts, function (req, jwt_payload, done) {
+passport.use('local-dbcheck',new JwtStrategy(opts, function (req, jwt_payload, done) { 
   // Test for successful verification
- /* if (jwt_payload.hasOwnProperty('username')) {    
-    return done(null, jwt_payload);
+  if (jwt_payload.hasOwnProperty('username')) {      
+    userSessionController.getSessionTokenByUsernameToken(jwt_payload.id,req.headers.authorization.slice(4))
+    .then (function (session) {
+     if(session.sessionToken===req.headers.authorization.slice(4)){
+        return done(null, jwt_payload);
+      }
+    });
+   
   } else {
     return done(null, false);
-  } */
-  console.log(req.headers['user-agent']);
-  return done(null, jwt_payload);
+  }  
+ 
 }));
 
 /** Export our route map */
