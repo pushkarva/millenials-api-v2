@@ -1,13 +1,13 @@
     var UserSession = require('../models/user_sessions');
     var Sequelize = require("sequelize");
     var connection = require("../helper/dbconnection");
-    var eH = require("../helper/passHashHelper");
+    var useragent = require('useragent');
+    
+    class UserSessionsController {
 
-    class UserController {
-
-      getByUsername(username) {
+      getSessionsTokenByUsername(username) {
         return new Promise(function (resolve, reject) {
-          User(connection, Sequelize).find({
+          UserSession(connection, Sequelize).find({
             where: {
               iduser: {
                 $eq: username
@@ -23,54 +23,67 @@
         });
       };
 
-      createUser(req,token) {
+      getSessionTokenByUsernameToken(username,token) {
         return new Promise(function (resolve, reject) {
-          var randomSalt = eH.getSalt();
-          var userData = {
-            iduser: req.body.username,
-            FirstName: req.body.firstName,
-            LastName: req.body.lastName,
-            PasswordHash: eH.passHash(req.body.password,randomSalt),
-            DOB: req.body.dob,
-            Sex: req.body.gender,
-            RandomSalt: randomSalt,
-          }
-          var model = User(connection, Sequelize);
-          model.find({
+          UserSession(connection, Sequelize).find({
             where: {
-              iduser: req.body.username
+              $and: [{
+              idUser: {
+                $eq: username
+              },
+              sessionToken: {
+                $eq: token
+              }
             }
-          }).then(user => {
-            if (!user) {
-              model.create(userData)
-                .then(user => {
+          ]
+        }
+          }).then(session => {
+            return resolve(session);
+          }).catch(err => {
+            console.error('Database Error:', err);
+            return reject(err);
+          });
+
+        });
+      };
+      
+      createUserSession(req,token) {
+        return new Promise(function (resolve, reject) {
+      
+          var ip = '127.0.0.1';
+        /*req.headers['x-forwarded-for'] ||
+          req.connection.remoteAddress ||
+          req.socket.remoteAddress ||
+          req.connection.socket.remoteAddress;
+          ip = ip.split(',')[0];
+          ip = ip.split(':').slice(-1); //in case the ip returned in a format: "::ffff:146.xxx.xxx.xxx" */
+
+          var agent = useragent.parse(req.headers['user-agent']);
+           var userSessionData = {
+            idUser: req.body.username,
+            browser: agent.toAgent(),
+            device: agent.device.toString()+','+agent.os.toString(),
+            sessionToken: token,
+            user_ip: ip
+          }
+          var model = UserSession(connection, Sequelize);                     
+              model.create(userSessionData)
+                .then(userSession => {
                   console.log('created');
                   return resolve({
-                    "user": user,
+                    "session": userSession,
                     "statuscd": "SUCCESS",
-                    "status": "New User created"
-                  });
-                  //    res.send(200, { success: { code: 200, status: 'OK', message: 'Success - User created successfully' } });
+                    "status": "New Session created"
+                  });                  
                 })
                 .catch(err => {
                   console.error('Database Error:', err);
                   return resolve({
                     "statuscd": "DATABASE_ERR",
                     "status": err
-                  });
-                  //    res.send(404, { error: { code: 404, status: 'ENOTFOUND', message: 'The username is invalid.  Please try again.' } });
-                });
-            } else {
-              console.error('User already exists.');
-              return resolve({
-                "user": user,
-                "statuscd": "INVALIDUSER",
-                "status": "User already exists"
-              });
-              //  res.send(444, { error: { code: 444, status: 'INVALIDUSER', message: 'The username is invalid.  Please try again.' } });
-            }
-          });
-        });
+                  });                 
+                }); 
+             });
       };
     }
-    module.exports = new UserController();
+    module.exports = new UserSessionsController();
