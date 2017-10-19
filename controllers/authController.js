@@ -5,11 +5,9 @@ var JwtStrategy = require('passport-jwt').Strategy; // JWT passport strategy
 var ExtractJwt = require('passport-jwt').ExtractJwt; // Various JWT extraction methods
 var jwt = require('jsonwebtoken'); // Jason Web Tokens
 var config = require('config'); // Easy configuration file parser
-var crypto = require('crypto'); // Cryptographic library
 var userController = require("./userController");
-var eH = require("../helper/passHashHelper");
 var userSessionController = require("../controllers/userSessionsController");
-
+var bcrypt = require('bcrypt');
 
 // Configuration
 var jwtConfig = config.get('jwt');
@@ -40,7 +38,7 @@ passport.use('login-strategy',
     function (req,username, password, done) {
       // Test the access credentials
       var user = userController.getByUsername(username).then(function (user) {
-       if (user && (eH.passHash(password, user.RandomSalt)===(user.PasswordHash))) {          
+       if (user && (bcrypt.compare(password, user.PasswordHash))) {          
           var payload = { username: username, id: user.iduser, email: user.Email, mobile: user.Mobile };
           jwt.sign(payload, jwtConfig.secretKey, {
             algorithm: jwtConfig.algorithm, expiresIn: parseInt(jwtConfig.tokenValidity),

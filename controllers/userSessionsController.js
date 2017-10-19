@@ -51,12 +51,13 @@
         return new Promise(function (resolve, reject) {
       
           var ip = '127.0.0.1';
-        /*req.headers['x-forwarded-for'] ||
+          
+          var ip2 = req.headers['x-forwarded-for'] ||
           req.connection.remoteAddress ||
           req.socket.remoteAddress ||
           req.connection.socket.remoteAddress;
-          ip = ip.split(',')[0];
-          ip = ip.split(':').slice(-1); //in case the ip returned in a format: "::ffff:146.xxx.xxx.xxx" */
+          console.log(ip2);
+          
 
           var agent = useragent.parse(req.headers['user-agent']);
            var userSessionData = {

@@ -1,7 +1,8 @@
     var User = require('../models/user');
     var Sequelize = require("sequelize");
     var connection = require("../helper/dbconnection");
-    var eH = require("../helper/passHashHelper");
+    var bcrypt = require('bcrypt');
+    var phConfig = require('config').get('passhash'); // Easy configuration file parser
 
     class UserController {
 
@@ -50,12 +51,13 @@
 
       createUser(req) {
         return new Promise(function (resolve, reject) {
-          var randomSalt = eH.getSalt();
+          //var randomSalt = bcrypt.genSaltSync(phConfig.saltLength);
+          var randomSalt = bcrypt.genSaltSync(10);
           var userData = {
             iduser: req.body.username,
             FirstName: req.body.firstName,
             LastName: req.body.lastName,
-            PasswordHash: eH.passHash(req.body.password,randomSalt),
+            PasswordHash: bcrypt.hashSync(req.body.password,randomSalt),
             DOB: req.body.dob,
             Sex: req.body.gender,
             RandomSalt: randomSalt,
